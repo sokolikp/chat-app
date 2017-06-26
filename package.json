@@ -1,18 +1,23 @@
 {
-  "name": "chat-app",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1"
-  },
-  "devDependencies": {
-    "react-scripts": "1.0.7"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "name": "chat-app",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start": "concurrently \"npm run server\" \"npm run client\"",
+        "server": "node server.js",
+        "client": "node start-client.js",
+        "lint": "eslint ."
+    },
+    "dependencies": {
+        "babel-core": "6.14.0",
+        "body-parser": "^1.17.2",
+        "express": "^4.15.3",
+        "lodash": "^4.17.4",
+        "randomstring": "^1.1.5",
+        "socket.io": "^2.0.3"
+    },
+    "devDependencies": {
+        "concurrently": "^3.5.0",
+        "eslint": "^3.19.0"
+    }
 }

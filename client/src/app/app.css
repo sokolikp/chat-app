@@ -1,0 +1,12 @@
+.app-nav {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.nav-home, .nav-home:hover {
+  text-decoration: none;
+  color: white;
+}

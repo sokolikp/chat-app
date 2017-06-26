@@ -1,0 +1,49 @@
+.left-nav {
+  padding: 0 30px;
+}
+
+::-webkit-input-placeholder {
+  color: lightgray;
+  font-size: 12px;
+}
+
+.display-name-container {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+.display-name-header {
+  font-weight: bold;
+}
+
+.display-name-line {
+  cursor: pointer;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.display-name {
+  margin-right: 10px;
+}
+
+.pencil-hover {
+  display: none;
+}
+
+.display-name-line:hover .pencil-hover {
+  display: inline;
+}
+
+.hint {
+  font-size: 12px;
+}
+
+.copy-text {
+  color: green;
+  font-size: 10px;
+  padding-left: 10px;
+}

@@ -53,7 +53,6 @@ const Http = {
         count++;
       });
     }
-    console.log(path);
     return Http.request(path, null, 'GET');
   },
 

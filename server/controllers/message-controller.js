@@ -9,7 +9,13 @@ const messageController = {
   },
 
   getMessages: (chatRoomId) => {
-    return _.map(messages, (message) => {
+    return _.filter(messages, (message) => {
+      return message.chatRoomId === chatRoomId;
+    });
+  },
+
+  deleteMessages: (chatRoomId) => {
+    _.remove(messages, (message) => {
       return message.chatRoomId === chatRoomId;
     });
   }

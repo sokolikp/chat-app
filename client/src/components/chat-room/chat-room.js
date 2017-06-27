@@ -16,7 +16,9 @@ class ChatRoom extends Component {
       user: null, // object or null
       previousName: null,
       input: "",
+      nameError: false,
       messages: [],
+      users: [],
       chatRoomId: this.props.match.params.chatRoomId,
       loaded: false,
       room: null
@@ -28,7 +30,9 @@ class ChatRoom extends Component {
     this.scrollToBottom = this.scrollToBottom.bind(this);
     this.addNewMessage = this.addNewMessage.bind(this);
     this.setUserName = this.setUserName.bind(this);
-    this.setDefaultUserName = this.setDefaultUserName.bind(this);
+    this.setUser = this.setUser.bind(this);
+    this.setMessages = this.setMessages.bind(this);
+    this.setUsers = this.setUsers.bind(this);
   }
 
   componentDidMount () {
@@ -49,12 +53,14 @@ class ChatRoom extends Component {
         socket.on("connect", () => {
           socket.emit('join_room', this.state.chatRoomId);
 
-          socket.on('new_message', data => {
-            this.addNewMessage(data.message);
+          socket.on('room_data', data => {
+            this.setUser(data.user);
+            this.setMessages(data.messages);
+            this.setUsers(data.users);
           });
 
-          socket.on('room_size', data => {
-            this.setDefaultUserName(data.size);
+          socket.on('new_message', data => {
+            this.addNewMessage(data.message);
           });
         });
       })
@@ -78,7 +84,6 @@ class ChatRoom extends Component {
   addNewMessage (message) {
     if (message.userName === this.state.user.name) { return; }
 
-    message.isCurrentUser = false;
     let messages = this.state.messages;
     messages.push(message);
     this.setState({
@@ -86,26 +91,53 @@ class ChatRoom extends Component {
     });
   }
 
-  setDefaultUserName (roomSize) {
+  setUser (user) {
     if (this.state.user === null) {
-      let roomId = this.state.chatRoomId;
       this.setState({
-        user: { name: 'anon ' + (roomSize + 1), chatRoomId: roomId }
+        user: user
+      });
+    }
+  }
+
+  setMessages (messages) {
+    if (this.state.messages.length === 0) {
+      this.setState({
+        messages: messages
+      });
+    }
+  }
+
+  setUsers (users) {
+    if (this.state.users.length === 0) {
+      this.setState({
+        users: users
       });
     }
   }
 
   setUserName (nameStr) {
-    let previousName = this.state.previousUserName !== null ? this.state.previousUserName : this.state.user.name,
-        roomId = this.state.chatRoomId,
-        user = { name: nameStr, chatRoomId: roomId };
-    this.setState({
-      previousUserName: previousName,
-      user: user
-    });
+    // change user's name on backend
+    http.put('/api/user/user', {
+      id: this.state.user.id,
+      name: nameStr,
+      roomId: this.state.chatRoomId
+    })
+    .then((payload) => {
+      if (payload.error && payload.error === 'invalid_name') {
+        this.setState({
+          nameError: true
+        });
+      } else {
+        let previousName = this.state.previousUserName !== null ? this.state.previousUserName : this.state.user.name,
+            user = this.state.user;
 
-    // if a user is explicitly setting their username, POST to backend
-    http.post('/api/user/user', user);
+        user.name = nameStr;
+        this.setState({
+          previousUserName: previousName,
+          user: user
+        });
+      }
+    });
   }
 
   updateMessage (event) {
@@ -124,10 +156,10 @@ class ChatRoom extends Component {
     if (!this.state.input) { return; }
 
     let message = {
-      isCurrentUser: true,
+      userId: this.state.user.id,
       userName: this.state.user.name,
-      text: this.state.input,
       chatRoomId: this.state.chatRoomId,
+      text: this.state.input,
       previousName: this.state.previousUserName
     }
 
@@ -172,7 +204,7 @@ class ChatRoom extends Component {
 
     return (
       <div className="chat-room">
-        <LeftNav user={this.state.user} setUserName={this.setUserName}></LeftNav>
+        <LeftNav user={this.state.user} setUserName={this.setUserName} nameError={this.state.nameError}></LeftNav>
 
         <form className="chat-form" onSubmit={this.postMessage}>
           <div className="chat-history">

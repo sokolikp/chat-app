@@ -14,7 +14,7 @@ class Message extends Component {
   }
 
   getMessageClass() {
-    if (this.props.message.isCurrentUser) {
+    if (this.props.message.userId === this.props.thisUser.id) {
       return "align-right";
     }
 
@@ -37,7 +37,7 @@ class Message extends Component {
             </span>
           ),
           usernameNode = (
-            this.props.message.isCurrentUser ?
+            this.props.message.userId === this.props.thisUser.id ?
               <div className="user-name">{previosNameNode} {this.props.message.userName}</div> :
               <div className="user-name">{this.props.message.userName} {previosNameNode}</div>
           );

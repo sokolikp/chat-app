@@ -10,8 +10,10 @@ router.post("/chat_room", (req, res) => {
       returnRoom;
 
   if (body.roomId !== undefined) {
+    // remove invalid chars from room string (this is a second check - already done on client)
+    roomId = body.roomId.replace(/\W+/g, "");
+
     // check whether room exists yet
-    roomId = body.roomId;
     existingRoom = roomController.getRoom(roomId);
   } else {
     roomId = randomstring.generate();

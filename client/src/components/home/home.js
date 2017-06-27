@@ -19,7 +19,13 @@ class Home extends Component {
 
   startNewChat(event) {
     event.preventDefault();
-    let params = this.state.input !== "" ? {roomId: this.state.input} : {};
+    let params = {};
+    if (this.state.input !== "") {
+      // remove invalid chars
+      let roomId = this.state.input.replace(/\W+/g, "").toLowerCase();
+      params.roomId = roomId;
+    }
+
     http.post('/api/room/chat_room', params)
       .then(response => {
         let room = response.room;

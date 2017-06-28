@@ -6,7 +6,8 @@
         "start": "concurrently \"npm run server\" \"npm run client\"",
         "server": "node server.js",
         "client": "node start-client.js",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "postinstall": "cd client && npm install"
     },
     "dependencies": {
         "babel-core": "6.14.0",

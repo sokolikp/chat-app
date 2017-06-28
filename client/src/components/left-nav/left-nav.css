@@ -74,6 +74,7 @@
 
 .bullet-container {
   height: 100%;
+  display: flex;
 }
 
 .active-bullet {

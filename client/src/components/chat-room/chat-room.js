@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Message from '../message/message';
 import LeftNav from '../left-nav/left-nav';
 import http from '../../utility/http';
+import _ from 'lodash';
 import './chat-room.css';
 
 // only use sockets in chat rooms
@@ -33,6 +34,10 @@ class ChatRoom extends Component {
     this.setUser = this.setUser.bind(this);
     this.setMessages = this.setMessages.bind(this);
     this.setUsers = this.setUsers.bind(this);
+    this.addNewUser = this.addNewUser.bind(this);
+    this.updateUser = this.updateUser.bind(this);
+    this.removeUser = this.removeUser.bind(this);
+    this.clearError = this.clearError.bind(this);
   }
 
   componentDidMount () {
@@ -62,6 +67,18 @@ class ChatRoom extends Component {
           socket.on('new_message', data => {
             this.addNewMessage(data.message);
           });
+
+          socket.on('new_user', data => {
+            this.addNewUser(data.user);
+          });
+
+          socket.on('update_user', data => {
+            this.updateUser(data.user);
+          });
+
+          socket.on('user_left', data => {
+            this.removeUser(data.userId);
+          });
         });
       })
       .catch(error => {
@@ -88,6 +105,41 @@ class ChatRoom extends Component {
     messages.push(message);
     this.setState({
       messages: messages
+    });
+  }
+
+  addNewUser (user) {
+    if (user.id === this.state.user.id) { return; }
+
+    let users = this.state.users;
+    users.push(user);
+    this.setState({
+      users: users
+    });
+  }
+
+  updateUser (updateUser) {
+    if (updateUser.id === this.state.user.id) { return; }
+
+    let users = this.state.users,
+        updateIdx = _.findIndex(users, (user) => {
+          return user.id === updateUser.id;
+        });
+
+    users[updateIdx] = updateUser;
+    this.setState({
+      users: users
+    });
+  }
+
+  removeUser (userId) {
+    let users = this.state.users;
+    _.remove(users, (user) => {
+      return user.id === userId;
+    });
+
+    this.setState({
+      users: users
     });
   }
 
@@ -127,6 +179,9 @@ class ChatRoom extends Component {
         this.setState({
           nameError: true
         });
+        setTimeout(() => {
+          this.clearError();
+        }, 3000);
       } else {
         let previousName = this.state.previousUserName !== null ? this.state.previousUserName : this.state.user.name,
             user = this.state.user;
@@ -137,6 +192,12 @@ class ChatRoom extends Component {
           user: user
         });
       }
+    });
+  }
+
+  clearError () {
+    this.setState({
+      nameError: false
     });
   }
 
@@ -204,7 +265,12 @@ class ChatRoom extends Component {
 
     return (
       <div className="chat-room">
-        <LeftNav user={this.state.user} setUserName={this.setUserName} nameError={this.state.nameError}></LeftNav>
+        <LeftNav
+          user={this.state.user}
+          users={this.state.users}
+          setUserName={this.setUserName}
+          nameError={this.state.nameError}>
+        </LeftNav>
 
         <form className="chat-form" onSubmit={this.postMessage}>
           <div className="chat-history">

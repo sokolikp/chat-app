@@ -24,11 +24,13 @@ const roomController = {
   },
 
   getUsers: (roomId) => {
-    return rooms[roomId].users;
+    let room = roomController.getRoom(roomId);
+    return room && room.users;
   },
 
   getNumUsers: (roomId) => {
-    return roomController.getUsers(roomId).length;
+    let users = roomController.getUsers(roomId);
+    return users && users.length;
   },
 
   getNextUserId: (roomId) => {

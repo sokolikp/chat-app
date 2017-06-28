@@ -38,6 +38,11 @@ router.put("/user", (req, res) => {
       return;
     }
     user.name = params.name;
+
+    // update other users in the room
+    let io = req.app.get('socketio'),
+        chatRoomSocket = io.sockets.in("chat_room_" + user.chatRoomId);
+    chatRoomSocket.emit('update_user', { user: user });
   }
 
   res.json(user);

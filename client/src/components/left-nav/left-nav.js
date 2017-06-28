@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import _ from 'lodash';
 import "./left-nav.css";
 
 class LeftNav extends Component {
@@ -59,33 +60,13 @@ class LeftNav extends Component {
   }
 
   render() {
-    let displayNameNode;
-    if (!this.state.editMode) {
-      displayNameNode = (
-        <div className="display-name-line" onClick={this.toggleEditMode}>
-          <span className="display-name">{this.props.user ? this.props.user.name : ""}</span>
-          <span className="pencil-hover"><i className="fa fa-pencil"></i></span>
-        </div>
-      )
-    } else {
-      displayNameNode = (
-        <form onSubmit={this.submitUserName}>
-          <input
-            autoFocus
-            placeholder="Display name"
-            value={this.state.input}
-            onBlur={this.submitUserName}
-            onChange={this.updateUserName}/>
-        </form>
-      )
-    }
-
     return (
       <div className="left-nav">
         <div className="display-name-container">
           <div className="display-name-header">Display name:</div>
-          <div>{displayNameNode}</div>
+          <div>{DisplayName(this)}</div>
         </div>
+        <div>{UserList(this.props.users, this.props.user)}</div>
         <div className="hint">
           You can copy and share this link. Anyone who has the link can post here.<br/>
           <CopyToClipboard
@@ -100,5 +81,63 @@ class LeftNav extends Component {
 
   }
 }
+
+/***** abstract some render function logic; not necessary to break into separate component ******/
+const DisplayName = (context) => {
+  if (!context.state.editMode) {
+    return (
+      <div className="display-name-line" onClick={context.toggleEditMode}>
+        <span className="display-name">{context.props.user ? context.props.user.name : ""}</span>
+        <span className="pencil-hover"><i className="fa fa-pencil"></i></span>
+        <span className="name-error">{context.props.nameError ? "That name already exists!" : ""}</span>
+      </div>
+    )
+  } else {
+    return (
+      <form onSubmit={context.submitUserName}>
+        <input
+          autoFocus
+          placeholder="Display name"
+          value={context.state.input}
+          onBlur={context.submitUserName}
+          onChange={context.updateUserName}/>
+      </form>
+    )
+  }
+};
+
+const UserList = (users, thisUser) => {
+  if (!thisUser) { return; }
+
+  let userList = [];
+  userList.push(
+    <div key={thisUser.id} className="user-list__user">
+      <div className="bullet-container">
+        <div className="active-bullet"></div>
+      </div>
+      <div>{thisUser.name} <span>(You)</span></div>
+    </div>
+  );
+
+  _.each(users, (user) => {
+    if (user.id !== thisUser.id) {
+      userList.push(
+        <div key={user.id} className="user-list__user">
+          <div className="bullet-container">
+            <div className="active-bullet"></div>
+          </div>
+          <div>{user.name}</div>
+        </div>
+      );
+    }
+  });
+
+  return (
+    <div className="user-list">
+      <div className="user-list-title">Users Here:</div>
+      {userList}
+    </div>
+  )
+};
 
 export default LeftNav;

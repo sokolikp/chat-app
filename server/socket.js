@@ -7,10 +7,12 @@ let sockets = {};
 module.exports = (io) => {
   // io.on('connection', require('./server/routes/socket.js'));
   io.on('connection', socket => {
-    console.log("connection");
-
     // join rooms
     socket.on('join_room', (chatRoomId) => {
+      if (!roomController.getRoom(chatRoomId)) {
+        return;
+      }
+
       socket.join('chat_room_' + chatRoomId);
 
       let nextId = roomController.getNextUserId(chatRoomId);
@@ -31,7 +33,12 @@ module.exports = (io) => {
     });
 
     socket.on('disconnect', () => {
-      console.log('user disconnected');
+      if (!roomController.getRoom(socket.user.chatRoomId)) {
+        // if the room is already gone, just try to delete the user and exit
+        userController.deleteUser(socket.user.id);
+        return;
+      }
+
       // remove user from room and delete user object
       roomController.removeUser(socket.user.id, socket.user.chatRoomId);
       userController.deleteUser(socket.user.id);

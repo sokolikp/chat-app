@@ -1,5 +1,7 @@
 # chat-app
 
+This site is deployed at https://paul-chat.herokuapp.com/
+
 ## Usage
 
 To run locally, install dependencies in root and /client directories
